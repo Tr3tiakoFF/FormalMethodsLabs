@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+bool bar_is_opened = false;
+
+bool car_is_seen_by_sensor = false;
+bool car_is_in_queue = false;
+
+chan CHECK;
+chan CAR;
+chan NO_CAR;</declaration>
+	<template>
+		<name x="5" y="5">Sensor_clock_template</name>
+		<parameter>const int lower_check_delta_time_bound, const int upper_check_delta_time_bound</parameter>
+		<declaration>// Place local declarations here.
+clock t;</declaration>
+		<location id="id0" x="-127" y="-42">
+			<name x="-178" y="-51">Idle</name>
+			<label kind="invariant" x="-178" y="-8">t &lt;= upper_check_delta_time_bound</label>
+		</location>
+		<init ref="id0"/>
+		<transition id="id1">
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-85" y="-76">t &gt;= lower_check_delta_time_bound</label>
+			<label kind="synchronisation" x="-85" y="-59">CHECK!</label>
+			<label kind="assignment" x="-85" y="-42">t := 0</label>
+			<nail x="-93" y="-8"/>
+			<nail x="-93" y="-76"/>
+		</transition>
+	</template>
+	<template>
+		<name>Car_sensor_template</name>
+		<declaration>clock t;</declaration>
+		<location id="id2" x="-204" y="-110">
+			<name x="-255" y="-119">Idle</name>
+		</location>
+		<location id="id3" x="170" y="-110">
+			<committed/>
+		</location>
+		<location id="id4" x="-127" y="-110">
+			<name x="-178" y="-144">CarIsNotDetected</name>
+			<committed/>
+		</location>
+		<location id="id5" x="-127" y="-34">
+			<name x="-178" y="-68">CarDetected</name>
+			<committed/>
+		</location>
+		<init ref="id2"/>
+		<transition id="id6">
+			<source ref="id5"/>
+			<target ref="id2"/>
+			<nail x="-204" y="-34"/>
+		</transition>
+		<transition id="id7">
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-102" y="-51">car_is_seen_by_sensor == true</label>
+			<label kind="synchronisation" x="-102" y="-34">CAR!</label>
+			<nail x="170" y="-34"/>
+		</transition>
+		<transition id="id8">
+			<source ref="id4"/>
+			<target ref="id2"/>
+		</transition>
+		<transition id="id9">
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-102" y="-127">car_is_seen_by_sensor == false</label>
+			<label kind="synchronisation" x="-102" y="-110">NO_CAR!</label>
+		</transition>
+		<transition id="id10">
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="-93" y="-178">CHECK?</label>
+			<nail x="-204" y="-161"/>
+			<nail x="170" y="-161"/>
+		</transition>
+	</template>
+	<template>
+		<name>Bar_gate_template</name>
+		<parameter>const int opening_time, const int closing_time</parameter>
+		<declaration>clock t;</declaration>
+		<location id="id11" x="-459" y="-416">
+			<name x="-527" y="-424">Closed</name>
+		</location>
+		<location id="id12" x="-153" y="-85">
+			<name x="-136" y="-85">Opened</name>
+		</location>
+		<location id="id13" x="-153" y="-416">
+			<name x="-138" y="-424">Opening</name>
+			<label kind="invariant" x="-136" y="-408">t &lt;= opening_time</label>
+		</location>
+		<location id="id14" x="-459" y="-85">
+			<name x="-535" y="-85">Closing</name>
+			<label kind="invariant" x="-561" y="-68">t &lt;= closing_time</label>
+		</location>
+		<init ref="id11"/>
+		<transition id="id15">
+			<source ref="id14"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-518" y="-136">NO_CAR?</label>
+			<nail x="-518" y="-119"/>
+			<nail x="-467" y="-119"/>
+		</transition>
+		<transition id="id16">
+			<source ref="id14"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="-391" y="-195">CAR?</label>
+			<label kind="assignment" x="-391" y="-178">t := 0</label>
+			<nail x="-416" y="-178"/>
+			<nail x="-187" y="-178"/>
+		</transition>
+		<transition id="id17">
+			<source ref="id14"/>
+			<target ref="id11"/>
+			<label kind="guard" x="-612" y="-314">t &gt;= closing_time</label>
+			<label kind="assignment" x="-612" y="-297">t := 0</label>
+		</transition>
+		<transition id="id18">
+			<source ref="id12"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-399" y="-102">NO_CAR?</label>
+			<label kind="assignment" x="-399" y="-85">t := 0,
+bar_is_opened := false</label>
+		</transition>
+		<transition id="id19">
+			<source ref="id12"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="-136" y="-136">CAR?</label>
+			<nail x="-145" y="-119"/>
+			<nail x="-94" y="-119"/>
+		</transition>
+		<transition id="id20">
+			<source ref="id13"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-399" y="-348">NO_CAR?</label>
+			<label kind="assignment" x="-399" y="-331">t := 0</label>
+			<nail x="-187" y="-331"/>
+			<nail x="-416" y="-331"/>
+		</transition>
+		<transition id="id21">
+			<source ref="id13"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="-196" y="-467">CAR?</label>
+			<nail x="-153" y="-450"/>
+			<nail x="-213" y="-450"/>
+		</transition>
+		<transition id="id22">
+			<source ref="id13"/>
+			<target ref="id12"/>
+			<label kind="guard" x="-144" y="-314">t &gt;= opening_time</label>
+			<label kind="assignment" x="-144" y="-297">t := 0,
+bar_is_opened := true</label>
+		</transition>
+		<transition id="id23">
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-518" y="-467">NO_CAR?</label>
+			<nail x="-459" y="-450"/>
+			<nail x="-518" y="-450"/>
+		</transition>
+		<transition id="id24">
+			<source ref="id11"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="-391" y="-433">CAR?</label>
+			<label kind="assignment" x="-399" y="-416">t := 0</label>
+		</transition>
+	</template>
+	<template>
+		<name>Car_template</name>
+		<parameter>const int maximum_moving_around_time, const int minimum_queue_time, const int maximum_queue_time, const int minimum_near_gate_time, const int minimum_gate_passing_time, const int maximum_gate_passing_time</parameter>
+		<declaration>clock t;</declaration>
+		<location id="id25" x="-238" y="-25">
+			<name x="-357" y="-34">MovingAround</name>
+			<label kind="invariant" x="-357" y="-17">t &lt;= maximum_moving_around_time</label>
+		</location>
+		<location id="id26" x="59" y="-25">
+			<name x="42" y="-59">LeavingQueue</name>
+			<committed/>
+		</location>
+		<location id="id27" x="527" y="-25">
+			<name x="517" y="-59">NearGate</name>
+		</location>
+		<location id="id28" x="59" y="119">
+			<name x="42" y="127">InQueue</name>
+			<label kind="invariant" x="42" y="144">t &lt;= maximum_queue_time</label>
+		</location>
+		<location id="id29" x="59" y="-153">
+			<name x="49" y="-187">PassingGate</name>
+			<label kind="invariant" x="49" y="-136">t &lt;= maximum_gate_passing_time</label>
+		</location>
+		<init ref="id25"/>
+		<transition id="id30">
+			<source ref="id27"/>
+			<target ref="id29"/>
+			<label kind="guard" x="340" y="-178">bar_is_opened == true</label>
+			<label kind="assignment" x="340" y="-153">t := 0</label>
+			<nail x="527" y="-153"/>
+		</transition>
+		<transition id="id31">
+			<source ref="id26"/>
+			<target ref="id25"/>
+		</transition>
+		<transition id="id32">
+			<source ref="id28"/>
+			<target ref="id26"/>
+			<label kind="guard" x="-153" y="8">t &gt;= minimum_queue_time</label>
+			<label kind="assignment" x="-153" y="25">t := 0,
+car_is_in_queue := false</label>
+		</transition>
+		<transition id="id33">
+			<source ref="id27"/>
+			<target ref="id26"/>
+			<label kind="guard" x="255" y="-68">car_is_in_queue == false and
+t &gt;= minimum_near_gate_time</label>
+			<label kind="assignment" x="255" y="-25">t := 0,
+car_is_seen_by_sensor := false</label>
+		</transition>
+		<transition id="id34">
+			<source ref="id28"/>
+			<target ref="id27"/>
+			<label kind="guard" x="255" y="93">car_is_seen_by_sensor == false</label>
+			<label kind="assignment" x="255" y="119">t := 0,
+car_is_seen_by_sensor := true,
+car_is_in_queue := false</label>
+			<nail x="527" y="119"/>
+		</transition>
+		<transition id="id35">
+			<source ref="id25"/>
+			<target ref="id28"/>
+			<label kind="guard" x="-221" y="93">car_is_in_queue == false</label>
+			<label kind="assignment" x="-221" y="119">t := 0,
+car_is_in_queue := true</label>
+			<nail x="-238" y="119"/>
+		</transition>
+		<transition id="id36">
+			<source ref="id29"/>
+			<target ref="id25"/>
+			<label kind="guard" x="-221" y="-178">t &gt;= minimum_gate_passing_time</label>
+			<label kind="assignment" x="-220" y="-153">t := 0,
+car_is_seen_by_sensor := false</label>
+			<nail x="-238" y="-153"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+
+Car1 = Car_template(100, 10, 100, 100, 10, 50);
+Car2 = Car_template(100, 10, 100, 100, 10, 50);
+
+Sensor_clock = Sensor_clock_template(1, 10);
+Car_sensor = Car_sensor_template();
+Bar_gate = Bar_gate_template(5, 10);
+
+// List one or more processes to be composed into a system.
+system Car1, Car2, Sensor_clock, Car_sensor, Bar_gate;</system>
+	<queries>
+		<option key="--generate-strategy" value="0"/>
+		<query>
+			<formula>A[] Car_sensor.CarDetected imply ((Bar_gate.Opening or Bar_gate.Opened) and
+not (Bar_gate.Closed or Bar_gate.Closing))</formula>
+			<comment/>
+			<result outcome="success" type="quality" timestamp="2025-05-12 13:50:31 +0300">
+				<option key="--generate-strategy" value="0"/>
+			</result>
+		</query>
+		<query>
+			<formula>A[] Car_sensor.CarIsNotDetected imply (not (Bar_gate.Opening or Bar_gate.Opened)
+and (Bar_gate.Closed or Bar_gate.Closing))</formula>
+			<comment/>
+			<result outcome="success" type="quality" timestamp="2025-05-12 13:50:31 +0300">
+				<option key="--generate-strategy" value="0"/>
+			</result>
+		</query>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+		<query>
+			<formula>A[] (Car1.InQueue imply not Car2.InQueue) and (Car2.InQueue imply not Car1.InQueue)</formula>
+			<comment/>
+			<result outcome="success" type="quality" timestamp="2025-05-12 13:50:31 +0300">
+				<option key="--generate-strategy" value="0"/>
+			</result>
+		</query>
+		<query>
+			<formula>A[] (Car1.NearGate imply not Car2.NearGate) and (Car2.NearGate imply not Car1.NearGate)</formula>
+			<comment/>
+			<result outcome="success" type="quality" timestamp="2025-05-12 13:50:31 +0300">
+				<option key="--generate-strategy" value="0"/>
+			</result>
+		</query>
+		<query>
+			<formula>A[] (Car1.PassingGate imply Car2.InQueue or Car2.LeavingQueue or Car2.MovingAround) and (Car2.PassingGate imply Car1.InQueue or Car1.LeavingQueue or Car1.MovingAround)</formula>
+			<comment/>
+			<result outcome="success" type="quality" timestamp="2025-05-12 13:50:31 +0300">
+				<option key="--generate-strategy" value="0"/>
+			</result>
+		</query>
+	</queries>
+</nta>
